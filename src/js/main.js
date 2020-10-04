@@ -11,7 +11,7 @@ const cellWH = 22
 const gameW = 20
 const gameH = 30
 const svg = document.createElementNS(svgNS, 'svg')
-const scoreContainer = document.querySelector('.score')
+const scoreContainer = document.querySelector('.score-counter')
 let scoreCount = 0
 let direction = 1
 let bodyCells = [createBodyCell(), createBodyCell(1, 0)]
@@ -53,7 +53,7 @@ function createSvg() {
 createSvg()
 initialView()
 
-const gameInterval = setInterval(function () {
+let gameInterval = setInterval(function () {
   updatePosition()
 }, 110)
 
@@ -84,9 +84,6 @@ function updatePosition() {
 
   snakeHead.position.x = snakeNeck.position.x + getXdif()
   snakeHead.position.y = snakeNeck.position.y + getYdif()
-
-  // snakeHead.position.x = (snakeHead.position.x + gameW) % gameW
-  // snakeHead.position.y = (snakeHead.position.y + gameH) % gameH
 
   if (snakeHead.position.x === geico.position.x && snakeHead.position.y === geico.position.y) {
     const newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif())
@@ -142,11 +139,32 @@ document.addEventListener(
       e.preventDefault()
       direction = directions[e.key]
     }
+
+    if (e.key === 'Enter' && gameOverEl.classList.contains('active')) {
+      playAgain()
+    }
   },
   { passive: false }
 )
 
+const gameOverEl = document.querySelector('.game-over')
 function gameOver() {
-  const gameOverEl = document.querySelector('.game-over')
   gameOverEl.classList.add('active')
+  gameOverEl.querySelector('.score').innerHTML = `You scored ${scoreCount} points`
+}
+
+document.querySelector('.play-again').addEventListener('click', playAgain)
+
+function playAgain() {
+  gameOverEl.classList.remove('active')
+  scoreCount = 0
+  scoreContainer.innerHTML = `<span>Score: ${scoreCount}</span>`
+  bodyCells = [createBodyCell(), createBodyCell(1, 0)]
+  geico = createBodyCell(3, 3, true)
+  gameContainer.querySelector('svg').innerHTML = ''
+  direction = 1
+  initialView()
+  gameInterval = setInterval(function () {
+    updatePosition()
+  }, 110)
 }
