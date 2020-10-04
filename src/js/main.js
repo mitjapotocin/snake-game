@@ -7,15 +7,15 @@ function setAttributes(el, attributeAndValue) {
 }
 const svgNS = 'http://www.w3.org/2000/svg'
 const gameContainer = document.querySelector('.game-container')
-const cellWH = 25
-const gameW = 16
-const gameH = 22
+const cellWH = 22
+const gameW = 20
+const gameH = 30
 const svg = document.createElementNS(svgNS, 'svg')
 const scoreContainer = document.querySelector('.score')
 let scoreCount = 0
 let direction = 1
 let bodyCells = [createBodyCell(), createBodyCell(1, 0)]
-let geico = createBodyCell(5, 5, true)
+let geico = createBodyCell(3, 3, true)
 
 function createBodyCell(x = 0, y = 0, isGeico = false) {
   const cell = document.createElementNS(svgNS, 'rect')
@@ -27,7 +27,12 @@ function createBodyCell(x = 0, y = 0, isGeico = false) {
   cell.setAttributeNS(null, 'fill', isGeico ? 'black' : 'hotpink')
 
   if (isGeico) {
+    cell.setAttributeNS(null, 'rx', `${cellWH / 2}`)
+    cell.setAttributeNS(null, 'ry', `${cellWH / 2}`)
     cell.classList.add('geico')
+  } else {
+    cell.setAttributeNS(null, 'rx', '2')
+    cell.setAttributeNS(null, 'ry', '2')
   }
 
   cell.position = { x, y }
@@ -50,7 +55,7 @@ initialView()
 
 const gameInterval = setInterval(function () {
   updatePosition()
-}, 140)
+}, 110)
 
 function getXdif() {
   if (direction === 1) {
@@ -79,8 +84,6 @@ function updatePosition() {
 
   snakeHead.position.x = snakeNeck.position.x + getXdif()
   snakeHead.position.y = snakeNeck.position.y + getYdif()
-
-  console.log(snakeHead.position.x)
 
   // snakeHead.position.x = (snakeHead.position.x + gameW) % gameW
   // snakeHead.position.y = (snakeHead.position.y + gameH) % gameH
@@ -124,19 +127,24 @@ function initialView() {
   svg.append(geico)
 }
 
-document.addEventListener('keydown', (e) => {
-  const directions = {
-    ArrowRight: 1,
-    ArrowLeft: 3,
-    ArrowDown: 2,
-    ArrowUp: 4,
-    ' ': 'stop',
-  }
+document.addEventListener(
+  'keydown',
+  (e) => {
+    const directions = {
+      ArrowRight: 1,
+      ArrowLeft: 3,
+      ArrowDown: 2,
+      ArrowUp: 4,
+      ' ': 'stop',
+    }
 
-  if (directions[e.key] !== undefined) {
-    direction = directions[e.key]
-  }
-})
+    if (directions[e.key] !== undefined) {
+      e.preventDefault()
+      direction = directions[e.key]
+    }
+  },
+  { passive: false }
+)
 
 function gameOver() {
   const gameOverEl = document.querySelector('.game-over')
