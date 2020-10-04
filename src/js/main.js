@@ -24,7 +24,7 @@ function createBodyCell(x = 0, y = 0, isGeico = false) {
   cell.setAttributeNS(null, 'height', cellWH)
   cell.setAttributeNS(null, 'width', cellWH)
   cell.setAttributeNS(null, 'opacity', 1)
-  cell.setAttributeNS(null, 'fill', isGeico ? 'black' : 'hotpink')
+  cell.setAttributeNS(null, 'fill', isGeico ? '#000000d9' : 'hotpink')
 
   if (isGeico) {
     cell.setAttributeNS(null, 'rx', `${cellWH / 2}`)
@@ -150,7 +150,7 @@ document.addEventListener(
 const gameOverEl = document.querySelector('.game-over')
 function gameOver() {
   gameOverEl.classList.add('active')
-  gameOverEl.querySelector('.score').innerHTML = `You scored ${scoreCount} points`
+  gameOverEl.querySelector('.score').innerHTML = `You scored <span>${scoreCount}</span> points`
 }
 
 document.querySelector('.play-again').addEventListener('click', playAgain)
