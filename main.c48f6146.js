@@ -171,7 +171,7 @@ function createBodyCell() {
   cell.setAttributeNS(null, 'height', cellWH);
   cell.setAttributeNS(null, 'width', cellWH);
   cell.setAttributeNS(null, 'opacity', 1);
-  cell.setAttributeNS(null, 'fill', isGeico ? 'black' : 'hotpink');
+  cell.setAttributeNS(null, 'fill', isGeico ? '#000000d9' : 'hotpink');
 
   if (isGeico) {
     cell.setAttributeNS(null, 'rx', "".concat(cellWH / 2));
@@ -293,7 +293,7 @@ var gameOverEl = document.querySelector('.game-over');
 
 function gameOver() {
   gameOverEl.classList.add('active');
-  gameOverEl.querySelector('.score').innerHTML = "You scored ".concat(scoreCount, " points");
+  gameOverEl.querySelector('.score').innerHTML = "You scored <span>".concat(scoreCount, "</span> points");
 }
 
 document.querySelector('.play-again').addEventListener('click', playAgain);
@@ -311,7 +311,7 @@ function playAgain() {
     updatePosition();
   }, 110);
 }
-},{}],"../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -339,7 +339,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52899" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50327" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -515,5 +515,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/js/main.js"], null)
+},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","src/js/main.js"], null)
 //# sourceMappingURL=/main.c48f6146.js.map
