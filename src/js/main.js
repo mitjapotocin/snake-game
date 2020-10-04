@@ -23,7 +23,7 @@ function createBodyCell(x = 0, y = 0, isGeico = false) {
   cell.setAttributeNS(null, 'y', y * cellWH)
   cell.setAttributeNS(null, 'height', cellWH)
   cell.setAttributeNS(null, 'width', cellWH)
-  cell.setAttributeNS(null, 'opacity', 0.65)
+  cell.setAttributeNS(null, 'opacity', 1)
   cell.setAttributeNS(null, 'fill', isGeico ? 'black' : 'hotpink')
 
   if (isGeico) {
@@ -48,7 +48,7 @@ function createSvg() {
 createSvg()
 initialView()
 
-setInterval(function () {
+const gameInterval = setInterval(function () {
   updatePosition()
 }, 140)
 
@@ -72,8 +72,6 @@ function getYdif() {
 }
 
 function updatePosition() {
-  //Refactor this 2 functions
-
   bodyCells = [bodyCells[bodyCells.length - 1], ...bodyCells.slice(0, bodyCells.length - 1)]
 
   const snakeHead = bodyCells[0]
@@ -82,11 +80,10 @@ function updatePosition() {
   snakeHead.position.x = snakeNeck.position.x + getXdif()
   snakeHead.position.y = snakeNeck.position.y + getYdif()
 
-  snakeHead.position.x = (snakeHead.position.x + gameW) % gameW
-  snakeHead.position.y = (snakeHead.position.y + gameH) % gameH
+  console.log(snakeHead.position.x)
 
-  snakeHead.setAttributeNS(null, 'x', snakeHead.position.x * cellWH)
-  snakeHead.setAttributeNS(null, 'y', snakeHead.position.y * cellWH)
+  // snakeHead.position.x = (snakeHead.position.x + gameW) % gameW
+  // snakeHead.position.y = (snakeHead.position.y + gameH) % gameH
 
   if (snakeHead.position.x === geico.position.x && snakeHead.position.y === geico.position.y) {
     const newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif())
@@ -104,6 +101,19 @@ function updatePosition() {
     geico.position = { x: Math.floor(Math.random(1) * gameW), y: Math.floor(Math.random(1) * gameH) }
     geico.setAttributeNS(null, 'x', geico.position.x * cellWH)
     geico.setAttributeNS(null, 'y', geico.position.y * cellWH)
+  }
+
+  if (
+    snakeHead.position.x < 0 ||
+    snakeHead.position.x > gameW - 1 ||
+    snakeHead.position.y < 0 ||
+    snakeHead.position.y > gameH - 1
+  ) {
+    clearInterval(gameInterval)
+    gameOver()
+  } else {
+    snakeHead.setAttributeNS(null, 'x', snakeHead.position.x * cellWH)
+    snakeHead.setAttributeNS(null, 'y', snakeHead.position.y * cellWH)
   }
 }
 
@@ -127,3 +137,8 @@ document.addEventListener('keydown', (e) => {
     direction = directions[e.key]
   }
 })
+
+function gameOver() {
+  const gameOverEl = document.querySelector('.game-over')
+  gameOverEl.classList.add('active')
+}
