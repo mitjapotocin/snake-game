@@ -27,7 +27,7 @@ svg {
   background: #fff;
 }
 
-.score {
+.score-counter {
   margin-top: 12px;
   text-align: right;
   color: #fff;
@@ -74,12 +74,35 @@ h1 {
   right: 0;
   color: #fff;
 
-  p {
-    font-size: 2.6rem;
+  p.over {
+    font-size: 2.8rem;
     font-weight: 900;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, #d3d3d3 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, #b4b4b4 100%);
+
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  p.score {
+    text-align: center;
+  }
+
+  p.play-again {
+    margin-top: 160px;
+    padding: 20px;
+    background: #3b3b3b;
+    background: linear-gradient(135deg, #3b3b3b 0%, #ff148a 100%);
+    border-radius: 6px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: linear-gradient(190deg, #3b3b3b 0%, #ff148a 100%);
+    }
   }
 
   &.active {
