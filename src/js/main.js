@@ -168,3 +168,71 @@ function playAgain() {
     updatePosition()
   }, 110)
 }
+
+const apiURL = 'https://sloenduro-results.herokuapp.com/api/snake-results'
+let resultsObject
+let sortedResultsList
+let leaderboard = document.querySelector('.leaderboard')
+
+async function getResults() {
+  await fetch(apiURL)
+    .then((response) => response.json())
+    .then((data) => {
+      gameResults = data
+
+      resultsObject = gameResults.reduce((acc, item) => {
+        if (acc[item.name] === undefined || acc[item.name] < item.score) {
+          acc[item.name] = item.score
+        }
+
+        return acc
+      }, {})
+
+      resultsList = [...Object.entries(resultsObject)]
+        .map((item) => {
+          let obj = {}
+          obj[item[0]] = item[1]
+          return obj
+        })
+        .sort((a, b) => Object.values(b)[0] - Object.values(a)[0])
+    })
+}
+
+getResults().then(() => {
+  // console.log(resultsObject)
+  console.log(resultsList)
+
+  updateLeaderboard()
+})
+
+function updateLeaderboard() {
+  resultsList.forEach((el) => {
+    let li = document.createElement('li')
+    li.innerHTML = `${Object.keys(el)[0]}: ${Object.values(el)[0]}`
+
+    leaderboard.appendChild(li)
+  })
+}
+
+async function postData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    // credentials: '', // include, *same-origin, omit
+    headers: {
+      'Content-Type': 'application/json',
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  })
+  console.log(response.status)
+  // return response.json() // parses JSON response into native JavaScript objects
+}
+
+// postData(apiURL, { name: 'Simon', score: 300 }).then((data) => {
+//   console.log(data) // JSON data parsed by `data.json()` call
+// })
