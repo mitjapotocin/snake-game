@@ -3,22 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.082fdd9f.css" />
+    <link rel="stylesheet" href="style.d906dbb3.css" />
     <title>SnakeINN</title>
-    <script src="style.082fdd9f.js"></script>
   </head>
   <body>
     <div class="container">
       <h1>SnakeINN</h1>
       <div class="game-container">
-        <div class="game-over">
+        <div class="welcome screen">
+          <h2>Enter your nickname:</h2>
+          <form action="" id="nickname"><input type="text" /> <input type="submit" /></form>
+          <p class="disclaimer">Your high score will bi automatically saved and shown on the leaderboard.</p>
+        </div>
+        <div class="game-over screen">
           <p class="over">Game Over</p>
           <p class="score"></p>
+          <div class="leaderboard-wrapper">
+            <h2>Leaderboard</h2>
+            <ol class="leaderboard"></ol>
+          </div>
           <p class="play-again">Play again</p>
         </div>
       </div>
       <div class="score-counter"><span>Score: 0</span></div>
     </div>
   </body>
-  <script src="main.c48f6146.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="main.334a1f48.js"></script>
 </html>

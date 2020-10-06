@@ -118,6 +118,10 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"src/js/main.js":[function(require,module,exports) {
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -160,6 +164,28 @@ var scoreCount = 0;
 var direction = 1;
 var bodyCells = [createBodyCell(), createBodyCell(1, 0)];
 var geico = createBodyCell(3, 3, true);
+var form = document.querySelector('#nickname');
+var nickname;
+var gameInterval;
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  nickname = document.querySelector('input[type="text"]').value;
+
+  if (nickname !== '') {
+    document.querySelector('.welcome').classList.add('hide');
+    initGame();
+  }
+}, {
+  passive: false
+});
+
+function initGame() {
+  createSvg();
+  initialView();
+  gameInterval = setInterval(function () {
+    updatePosition();
+  }, 110);
+}
 
 function createBodyCell() {
   var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -198,12 +224,6 @@ function createSvg() {
   gameContainer.append(svg);
 }
 
-createSvg();
-initialView();
-var gameInterval = setInterval(function () {
-  updatePosition();
-}, 110);
-
 function getXdif() {
   if (direction === 1) {
     return 1;
@@ -236,7 +256,8 @@ function updatePosition() {
   snakeHead.position.y = snakeNeck.position.y + getYdif();
 
   if (snakeHead.position.x === geico.position.x && snakeHead.position.y === geico.position.y) {
-    var newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif());
+    // const newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif())
+    var newCell = createBodyCell(geico.position.x, geico.position.y);
     svg.append(newCell);
     bodyCells.unshift(newCell);
     scoreCount += 10;
@@ -253,13 +274,25 @@ function updatePosition() {
     geico.setAttributeNS(null, 'y', geico.position.y * cellWH);
   }
 
-  if (snakeHead.position.x < 0 || snakeHead.position.x > gameW - 1 || snakeHead.position.y < 0 || snakeHead.position.y > gameH - 1) {
+  if (snakeHead.position.x < 0 || snakeHead.position.x > gameW - 1 || snakeHead.position.y < 0 || snakeHead.position.y > gameH - 1 || checkIfCollision()) {
     clearInterval(gameInterval);
     gameOver();
   } else {
     snakeHead.setAttributeNS(null, 'x', snakeHead.position.x * cellWH);
     snakeHead.setAttributeNS(null, 'y', snakeHead.position.y * cellWH);
   }
+} // collision with self
+
+
+function checkIfCollision() {
+  var snakeHead = bodyCells[0];
+  var collision = false;
+  bodyCells.slice(4).forEach(function (cell) {
+    if (cell.position.x === snakeHead.position.x && cell.position.y === snakeHead.position.y) {
+      collision = true;
+    }
+  });
+  return collision;
 }
 
 function initialView() {
@@ -280,7 +313,10 @@ document.addEventListener('keydown', function (e) {
 
   if (directions[e.key] !== undefined) {
     e.preventDefault();
-    direction = directions[e.key];
+
+    if (direction === 1 && e.key !== 'ArrowLeft' || direction === 2 && e.key !== 'ArrowUp' || direction === 3 && e.key !== 'ArrowRidht' || direction === 4 && e.key !== 'ArrowDown') {
+      direction = directions[e.key];
+    }
   }
 
   if (e.key === 'Enter' && gameOverEl.classList.contains('active')) {
@@ -293,7 +329,44 @@ var gameOverEl = document.querySelector('.game-over');
 
 function gameOver() {
   gameOverEl.classList.add('active');
-  gameOverEl.querySelector('.score').innerHTML = "You scored <span>".concat(scoreCount, "</span> points");
+  gameOverEl.querySelector('.score').innerHTML = "<span>".concat(nickname, "</span>, you scored <span>").concat(scoreCount, "</span> points");
+  postScore();
+}
+
+function postScore() {
+  return _postScore.apply(this, arguments);
+}
+
+function _postScore() {
+  _postScore = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!(resultsObject[nickname] === undefined || resultsObject[nickname] < scoreCount)) {
+              _context.next = 4;
+              break;
+            }
+
+            _context.next = 3;
+            return postData(apiURL, {
+              name: nickname,
+              score: scoreCount
+            });
+
+          case 3:
+            getResults().then(function () {
+              updateLeaderboard();
+            });
+
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _postScore.apply(this, arguments);
 }
 
 document.querySelector('.play-again').addEventListener('click', playAgain);
@@ -310,6 +383,114 @@ function playAgain() {
   gameInterval = setInterval(function () {
     updatePosition();
   }, 110);
+}
+
+var apiURL = 'https://sloenduro-results.herokuapp.com/api/snake-results';
+var resultsObject;
+var sortedResultsList;
+var leaderboard = document.querySelector('.leaderboard');
+
+function getResults() {
+  return _getResults.apply(this, arguments);
+}
+
+function _getResults() {
+  _getResults = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return fetch(apiURL).then(function (response) {
+              return response.json();
+            }).then(function (data) {
+              gameResults = data;
+              resultsObject = gameResults.reduce(function (acc, item) {
+                if (acc[item.name] === undefined || acc[item.name] < item.score) {
+                  acc[item.name] = item.score;
+                }
+
+                return acc;
+              }, {});
+              resultsList = _toConsumableArray(Object.entries(resultsObject)).map(function (item) {
+                var obj = {};
+                obj[item[0]] = item[1];
+                return obj;
+              }).sort(function (a, b) {
+                return Object.values(b)[0] - Object.values(a)[0];
+              });
+            });
+
+          case 2:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _getResults.apply(this, arguments);
+}
+
+getResults().then(function () {
+  updateLeaderboard();
+});
+
+function updateLeaderboard() {
+  leaderboard.innerHTML = '';
+  resultsList.forEach(function (el) {
+    var li = document.createElement('li');
+    li.innerHTML = "".concat(Object.keys(el)[0], ": ").concat(Object.values(el)[0]);
+    Object.keys(el)[0] === nickname && li.classList.add('current');
+    leaderboard.appendChild(li);
+  });
+}
+
+function postData() {
+  return _postData.apply(this, arguments);
+}
+
+function _postData() {
+  _postData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+    var url,
+        data,
+        response,
+        _args3 = arguments;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            url = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : '';
+            data = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : {};
+            _context3.next = 4;
+            return fetch(url, {
+              method: 'POST',
+              // *GET, POST, PUT, DELETE, etc.
+              mode: 'cors',
+              // no-cors, *cors, same-origin
+              cache: 'no-cache',
+              // *default, no-cache, reload, force-cache, only-if-cached
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              redirect: 'follow',
+              // manual, *follow, error
+              referrerPolicy: 'no-referrer',
+              // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+              body: JSON.stringify(data) // body data type must match "Content-Type" header
+
+            });
+
+          case 4:
+            response = _context3.sent;
+
+          case 5:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3);
+  }));
+  return _postData.apply(this, arguments);
 }
 },{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -339,7 +520,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50327" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58635" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
