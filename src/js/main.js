@@ -129,7 +129,8 @@ function updatePosition() {
     snakeHead.position.x < 0 ||
     snakeHead.position.x > gameW - 1 ||
     snakeHead.position.y < 0 ||
-    snakeHead.position.y > gameH - 1
+    snakeHead.position.y > gameH - 1 ||
+    checkIfCollision()
   ) {
     clearInterval(gameInterval)
     gameOver()
@@ -137,6 +138,19 @@ function updatePosition() {
     snakeHead.setAttributeNS(null, 'x', snakeHead.position.x * cellWH)
     snakeHead.setAttributeNS(null, 'y', snakeHead.position.y * cellWH)
   }
+}
+
+// collision with self
+function checkIfCollision() {
+  const snakeHead = bodyCells[0]
+  let collision = false
+  bodyCells.slice(4).forEach(function (cell) {
+    if (cell.position.x === snakeHead.position.x && cell.position.y === snakeHead.position.y) {
+      collision = true
+    }
+  })
+
+  return collision
 }
 
 function initialView() {
@@ -159,7 +173,14 @@ document.addEventListener(
 
     if (directions[e.key] !== undefined) {
       e.preventDefault()
-      direction = directions[e.key]
+      if (
+        (direction === 1 && e.key !== 'ArrowLeft') ||
+        (direction === 2 && e.key !== 'ArrowUp') ||
+        (direction === 3 && e.key !== 'ArrowRidht') ||
+        (direction === 4 && e.key !== 'ArrowDown')
+      ) {
+        direction = directions[e.key]
+      }
     }
 
     if (e.key === 'Enter' && gameOverEl.classList.contains('active')) {

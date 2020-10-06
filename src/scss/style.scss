@@ -115,13 +115,10 @@ h1 {
 }
 
 .leaderboard-wrapper {
-  // background: #282828;
   border-radius: 6px;
   padding: 24px 10px 12px;
-  // width: 66%;
   margin: 0 auto;
   border: 4px solid #282828;
-  // border: 4px solid hotpink;
   position: relative;
 
   h2 {
@@ -146,7 +143,7 @@ ol {
   margin: 0 auto;
   display: inline-block;
   column-count: 2;
-  column-gap: 42px;
+  column-gap: 52px;
   .current {
     color: rgba(255, 20, 137, 0.8);
   }
