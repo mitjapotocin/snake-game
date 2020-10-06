@@ -16,6 +16,30 @@ let scoreCount = 0
 let direction = 1
 let bodyCells = [createBodyCell(), createBodyCell(1, 0)]
 let geico = createBodyCell(3, 3, true)
+const form = document.querySelector('#nickname')
+let nickname
+let gameInterval
+
+form.addEventListener(
+  'submit',
+  (e) => {
+    e.preventDefault()
+    nickname = document.querySelector('input[type="text"]').value
+    if (nickname !== '') {
+      document.querySelector('.welcome').classList.add('hide')
+      initGame()
+    }
+  },
+  { passive: false }
+)
+
+function initGame() {
+  createSvg()
+  initialView()
+  gameInterval = setInterval(function () {
+    updatePosition()
+  }, 110)
+}
 
 function createBodyCell(x = 0, y = 0, isGeico = false) {
   const cell = document.createElementNS(svgNS, 'rect')
@@ -50,13 +74,6 @@ function createSvg() {
   gameContainer.append(svg)
 }
 
-createSvg()
-initialView()
-
-let gameInterval = setInterval(function () {
-  updatePosition()
-}, 110)
-
 function getXdif() {
   if (direction === 1) {
     return 1
@@ -86,7 +103,8 @@ function updatePosition() {
   snakeHead.position.y = snakeNeck.position.y + getYdif()
 
   if (snakeHead.position.x === geico.position.x && snakeHead.position.y === geico.position.y) {
-    const newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif())
+    // const newCell = createBodyCell(geico.position.x + getXdif(), geico.position.y + getYdif())
+    const newCell = createBodyCell(geico.position.x, geico.position.y)
     svg.append(newCell)
     bodyCells.unshift(newCell)
     scoreCount += 10
@@ -98,7 +116,11 @@ function updatePosition() {
     }, 300)
     scoreContainer.innerHTML = `<span>Score: ${scoreCount}</span>`
 
-    geico.position = { x: Math.floor(Math.random(1) * gameW), y: Math.floor(Math.random(1) * gameH) }
+    geico.position = {
+      x: Math.floor(Math.random(1) * gameW),
+      y: Math.floor(Math.random(1) * gameH),
+    }
+
     geico.setAttributeNS(null, 'x', geico.position.x * cellWH)
     geico.setAttributeNS(null, 'y', geico.position.y * cellWH)
   }
@@ -148,9 +170,25 @@ document.addEventListener(
 )
 
 const gameOverEl = document.querySelector('.game-over')
+
 function gameOver() {
   gameOverEl.classList.add('active')
-  gameOverEl.querySelector('.score').innerHTML = `You scored <span>${scoreCount}</span> points`
+  gameOverEl.querySelector(
+    '.score'
+  ).innerHTML = `<span>${nickname}</span>, you scored <span>${scoreCount}</span> points`
+
+  postScore()
+}
+
+async function postScore() {
+  if (resultsObject[nickname] === undefined || resultsObject[nickname] < scoreCount) {
+    console.log('post')
+    await postData(apiURL, { name: nickname, score: scoreCount })
+
+    getResults().then(() => {
+      updateLeaderboard()
+    })
+  }
 }
 
 document.querySelector('.play-again').addEventListener('click', playAgain)
@@ -199,17 +237,16 @@ async function getResults() {
 }
 
 getResults().then(() => {
-  // console.log(resultsObject)
-  console.log(resultsList)
-
   updateLeaderboard()
 })
 
 function updateLeaderboard() {
+  leaderboard.innerHTML = ''
+
   resultsList.forEach((el) => {
     let li = document.createElement('li')
     li.innerHTML = `${Object.keys(el)[0]}: ${Object.values(el)[0]}`
-
+    Object.keys(el)[0] === nickname && li.classList.add('current')
     leaderboard.appendChild(li)
   })
 }
@@ -230,7 +267,6 @@ async function postData(url = '', data = {}) {
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   })
   console.log(response.status)
-  // return response.json() // parses JSON response into native JavaScript objects
 }
 
 // postData(apiURL, { name: 'Simon', score: 300 }).then((data) => {
