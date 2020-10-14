@@ -1,5 +1,3 @@
-// import CircularSlider from './CircularSlider'
-
 function setAttributes(el, attributeAndValue) {
   Object.entries(attributeAndValue).forEach(([attribute, value]) => {
     el.setAttribute(attribute, value)
