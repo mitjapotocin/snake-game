@@ -1,4 +1,4 @@
-# circular-slider
+# snake-game
 
 For development:
 
